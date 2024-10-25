@@ -5,6 +5,7 @@
   "private": true,
   "dependencies": {
     "async": "^3.2.5",
+    "node-cache": "^5.1.2",
     "polarity-integration-utils": "^0.1.0"
   }
 }

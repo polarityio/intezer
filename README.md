@@ -1,15 +1,16 @@
 # Polarity - Intezer Integration
 
-TODO
-
-<div style="display:flex; align-items: flex-start; justify-content:flex-start; align-items:flex-start; margin-bottom: 7px">
-  <img width="350" alt="Integration Example Paths" src="./assets/overlay.png">
-</div>
+The Autonomous SOC Intezer platform integrates with your security tools to triage alerts and investigate incidents for your team 24/7.
+The Polarity Intezer integration allows Polarity to search the Intezer platform for information on hashes including File Metadata, TTPs, IOCs, Behavior & Detect & Hunt data.
 
 For more information on Intezer, please visit their [official website](https://intezer.com/).
 
 ## Intezer Integration Options
-TODO
+### Intezer API URL
+The base URL of the Intezer API including the schema (i.e., https://)
+
+### API Key
+Your API Key
 
 ## Installation Instructions
 

@@ -1,8 +1,9 @@
 module.exports = {
   name: 'Intezer',
-  acronym: 'NZ',
-  description: 'TODO',
-  entityTypes: ['hash'],
+  acronym: 'IZ',
+  description:
+    'Search on hashes for File Metadata, TTPs, IOCs, Behavior & Detect & Hunt data',
+  entityTypes: ['SHA256', 'SHA1', 'MD5'],
   defaultColor: 'light-blue',
   onDemandOnly: true,
   styles: ['./client/styles.less'],
@@ -27,27 +28,18 @@ module.exports = {
   options: [
     {
       key: 'url',
-      name: 'Forward Networks API URL',
+      name: 'Intezer API URL',
       description:
-        'The base URL of the Forward Networks API including the schema (i.e., https://)',
-      default: 'https://fwd.app',
+        'The base URL of the Intezer API including the schema (i.e., https://)',
+      default: 'https://analyze.intezer.com',
       type: 'text',
       userCanEdit: false,
       adminOnly: true
     },
     {
-      key: 'username',
-      name: 'Username',
-      description: 'Your Username Credential',
-      default: '',
-      type: 'text',
-      userCanEdit: true,
-      adminOnly: false
-    },
-    {
-      key: 'password',
-      name: 'Password',
-      description: 'Your Password Credential',
+      key: 'apiKey',
+      name: 'API Key',
+      description: 'Your API Key',
       default: '',
       type: 'password',
       userCanEdit: true,

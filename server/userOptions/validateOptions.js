@@ -2,7 +2,8 @@ const { validateStringOptions, validateUrlOption } = require('./utils');
 
 const validateOptions = async (options, callback) => {
   const stringOptionsErrorMessages = {
-    //TODO
+    url: '* Required',
+    apiKey: '* Required'
   };
 
   const stringValidationErrors = validateStringOptions(

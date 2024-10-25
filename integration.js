@@ -4,7 +4,14 @@ const {
 } = require('polarity-integration-utils');
 
 const { validateOptions } = require('./server/userOptions');
-const { getNetworkPaths } = require('./server/queries');
+const {
+  getFiles,
+  getFilesMetadata,
+  getFilesTtps,
+  getFilesIocs,
+  getFilesBehavior,
+  getFilesDetections
+} = require('./server/queries');
 
 const assembleLookupResults = require('./server/assembleLookupResults');
 
@@ -13,14 +20,26 @@ const doLookup = async (entities, options, cb) => {
   try {
     Logger.debug({ entities }, 'Entities');
 
-    const { fromNetworkPaths, toNetworkPaths } = await getNetworkPaths(entities, options);
+    const files = await getFiles(entities, options);
 
-    Logger.trace({ fromNetworkPaths, toNetworkPaths });
+    const [metadata, ttps, iocs, behavior, detections] = await Promise.all([
+      getFilesMetadata(files, options),
+      getFilesTtps(files, options),
+      getFilesIocs(files, options),
+      getFilesBehavior(files, options),
+      getFilesDetections(files, options)
+    ]);
+
+    Logger.trace({ files, metadata, ttps, iocs, behavior, detections });
 
     const lookupResults = assembleLookupResults(
       entities,
-      fromNetworkPaths,
-      toNetworkPaths,
+      files,
+      metadata,
+      ttps,
+      iocs,
+      behavior,
+      detections,
       options
     );
 

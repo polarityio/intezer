@@ -1,5 +1,15 @@
-const getNetworkPaths = require('./getNetworkPaths');
+const getFiles = require('./getFiles');
+const getFilesBehavior = require('./getFilesBehavior');
+const getFilesDetections = require('./getFilesDetections');
+const getFilesIocs = require('./getFilesIocs');
+const getFilesMetadata = require('./getFilesMetadata');
+const getFilesTtps = require('./getFilesTtps');
 
 module.exports = {
-  getNetworkPaths
+  getFiles,
+  getFilesBehavior,
+  getFilesDetections,
+  getFilesIocs,
+  getFilesMetadata,
+  getFilesTtps
 };
