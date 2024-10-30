@@ -34,7 +34,7 @@ const scanFileHash = async ({ entity }, options, callback) => {
     const runningThisFunctionOnInitialLookup = !callback;
     if (runningThisFunctionOnInitialLookup) return { fileScan };
 
-    refreshFileHashScan({ file: { fileScan }, entity }, options, callback);
+    await refreshFileHashScan({ file: { fileScan }, entity }, options, callback);
   } catch (error) {
     const err = parseErrorToReadableJson(error);
 
