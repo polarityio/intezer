@@ -1,10 +1,8 @@
 {{#if file.needsToBeScanned}}
   <div class="mt-2">
-    <div class="alert alert-info">
-      <pre>This File Hash has yet to be scanned by Intezer.
+    <div class="alert alert-info text-info-block">This File Hash has yet to be scanned by Intezer.
 
-Scanning allows you to submit this hash to Intezer for Analysis.</pre>
-    </div>
+Scanning allows you to submit this hash to Intezer for Analysis.</div>
 
     {{#if scanFileHashErrorMessage}}
       <div class="alert alert-danger mt-1">
@@ -29,18 +27,13 @@ Scanning allows you to submit this hash to Intezer for Analysis.</pre>
 {{else if file.fileScan}}
   <div class="mt-2">
     {{#if (eq file.fileScan.status "failed")}}
-      <div class="alert alert-danger">
-        <pre>File Not Found.
+      <div class="alert alert-warning text-info-block">File Not Found.
 
-This File Hash was found to be unavailable on Intezer during Intezer Hash Analysis.</pre>
-      </div>
+This File Hash was not found on Intezer during Intezer Hash Analysis.</div>
     {{else}}
-      <div class="alert alert-info">
-        <pre>Hash Analysis is {{titleize (humanize (dasherize file.fileScan.status))}}.
-
-You can get an updated status on your Scan by Refreshing. This can take a minute or so.</pre>
-      </div>
-
+      <div class="alert alert-info text-info-block">Hash Analysis is {{titleize (humanize (dasherize file.fileScan.status))}}.
+        
+You can get an updated status on your Scan by Refreshing. This can take a minute or so.</div>
       {{#if refreshFileHashScanErrorMessage}}
         <div class="alert alert-danger mt-1">
           {{refreshFileHashScanErrorMessage}}
