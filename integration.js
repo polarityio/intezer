@@ -46,9 +46,12 @@ const onDetails = async (lookupObject, options, callback) => {
       );
 
       if (fileHasBeenScannedWithoutResultsYet(refreshedFileScanResult)) {
-        callback(null, { ...lookupObject.data, details: {
-          file: refreshedFileScanResult
-        }});
+        callback(null, {
+          ...lookupObject.data,
+          details: {
+            file: refreshedFileScanResult
+          }
+        });
         return;
       }
 
