@@ -5,6 +5,12 @@ The Polarity Intezer integration allows Polarity to search the Intezer platform 
 
 For more information on Intezer, please visit their [official website](https://intezer.com/).
 
+| ![Sample Overview](assets/genetic.png) | ![Sample Details](assets/ttps.png)  | ![Sample Summary](assets/iocs.png) 
+|:--------------------------------------:|:-----------------------------------:|:----------------------------------:|
+|         *Genetic Analysis Tab*         |             *TTPs Tab*              |         *IOCs Tab*         |
+|     ![ATT&CK](assets/behavior.png)     | ![IOCs](assets/detect_and_hunt.png) |   ![File Check](assets/scan.png)   
+|             *Behavior Tab*             |         *Detect & Hunt Tab*         |          *Scan New Hash*           |
+
 ## Intezer Integration Options
 ### Intezer API URL
 The base URL of the Intezer API including the schema (i.e., https://)
