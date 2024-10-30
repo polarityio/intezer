@@ -2,7 +2,7 @@ module.exports = {
   name: 'Intezer',
   acronym: 'IZ',
   description:
-    'Search on hashes for File Metadata, TTPs, IOCs, Behavior & Detect & Hunt data',
+    'Search on hashes for File Metadata, TTPs, IOCs, Behavior, and Detect & Hunt data',
   entityTypes: ['SHA256', 'SHA1', 'MD5'],
   defaultColor: 'light-blue',
   onDemandOnly: true,
