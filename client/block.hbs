@@ -126,7 +126,7 @@ You can get an updated status on your Scan by Refreshing. This can take a minute
           <div>
             <a href="{{file.analysis_url}}/genetic-analysis">
               View Analysis in Intezer
-              {{fa-icon icon="external-link" class="icon" fixedWidth=true}}
+              {{fa-icon icon="external-link" class="external-link" fixedWidth=true}}
             </a>
           </div>
         {{/if}}
@@ -185,14 +185,14 @@ You can get an updated status on your Scan by Refreshing. This can take a minute
         {{#if file.analysis_url}}
           <div>
             {{#if ttps.dynamicExecutionNotPossible}}
-              <a href="{{file.analysis_url}}//genetic-analysis">
+              <a href="{{file.analysis_url}}/genetic-analysis">
                 View Analysis in Intezer
-                {{fa-icon icon="external-link" class="icon" fixedWidth=true}}
+                {{fa-icon icon="external-link" class="external-link" fixedWidth=true}}
               </a>
             {{else}}
               <a href="{{file.analysis_url}}/dynamic-ttps">
                 View TTPs in Intezer
-                {{fa-icon icon="external-link" class="icon" fixedWidth=true}}
+                {{fa-icon icon="external-link" class="external-link" fixedWidth=true}}
               </a>
             {{/if}}
           </div>
@@ -214,14 +214,14 @@ You can get an updated status on your Scan by Refreshing. This can take a minute
               MITRE ATT&CK Categories
             </h1>
             {{#each-in ttps.mitreAttackTechniqueDetections as |enterprise techniques|}}
-              <div class="mt-1">
+              <div class="card-container">
                 <span class="p-key">{{enterprise}}</span>
                 <span class="p-value">
                   {{#each techniques as |technique|}}
                     <div class="ml-2">
                       <a href="{{technique.link}}">
                         {{technique.name}}
-                        {{fa-icon icon="external-link" class="icon" fixedWidth=true}}
+                        {{fa-icon icon="external-link" class="external-link" fixedWidth=true}}
                       </a>
                     </div>
                   {{/each}}
@@ -236,7 +236,7 @@ You can get an updated status on your Scan by Refreshing. This can take a minute
             </h1>
             <div class="mt-1">
               {{#each ttps.techniques as |ttp ttpIndex|}}
-                <div class="mb-2">
+                <div class="card-container">
                   {{#if ttp.description}}
                     <div>
                       <span class="p-key">Technique:</span>
@@ -318,7 +318,7 @@ You can get an updated status on your Scan by Refreshing. This can take a minute
           <div>
             <a href="{{file.analysis_url}}/iocs">
               View IOCs in Intezer
-              {{fa-icon icon="external-link" class="icon" fixedWidth=true}}
+              {{fa-icon icon="external-link" class="external-link" fixedWidth=true}}
             </a>
           </div>
         {{/if}}
@@ -380,7 +380,7 @@ You can get an updated status on your Scan by Refreshing. This can take a minute
             </h1>
             <div class="mt-1">
               {{#each iocs.files as |ioc|}}
-                <div class="mb-1">
+                <div class="card-container">
                   {{#if ioc.sha256}}
                     <div>
                       <span class="p-key">SHA256:</span>
@@ -404,9 +404,12 @@ You can get an updated status on your Scan by Refreshing. This can take a minute
                   {{#if ioc.verdict}}
                     <div>
                       <span class="p-key">Classification:</span>
-                      <span class="p-value">{{capitalize ioc.verdict}}{{#if
-                          ioc.family
-                        }}({{ioc.family}}){{/if}}</span>
+                      <span class="p-value">
+                        {{capitalize ioc.verdict}}
+                        {{#if ioc.family}}
+                          ({{ioc.family}})
+                        {{/if}}
+                      </span>
                     </div>
                   {{/if}}
                 </div>
@@ -423,12 +426,12 @@ You can get an updated status on your Scan by Refreshing. This can take a minute
             {{#if behavior.dynamicExecutionNotPossible}}
               <a href="{{file.analysis_url}}//genetic-analysis">
                 View Analysis in Intezer
-                {{fa-icon icon="external-link" class="icon" fixedWidth=true}}
+                {{fa-icon icon="external-link" class="external-link" fixedWidth=true}}
               </a>
             {{else}}
               <a href="{{file.analysis_url}}/behavior">
                 View Behavior in Intezer
-                {{fa-icon icon="external-link" class="icon" fixedWidth=true}}
+                {{fa-icon icon="external-link" class="external-link" fixedWidth=true}}
               </a>
             {{/if}}
           </div>
@@ -498,12 +501,12 @@ You can get an updated status on your Scan by Refreshing. This can take a minute
             {{#if detections.dynamicExecutionNotPossible}}
               <a href="{{file.analysis_url}}//genetic-analysis">
                 View Analysis in Intezer
-                {{fa-icon icon="external-link" class="icon" fixedWidth=true}}
+                {{fa-icon icon="external-link" class="external-link" fixedWidth=true}}
               </a>
             {{else}}
               <a href="{{file.analysis_url}}/detect-hunt">
                 View Detect & Hunt in Intezer
-                {{fa-icon icon="external-link" class="icon" fixedWidth=true}}
+                {{fa-icon icon="external-link" class="external-link" fixedWidth=true}}
               </a>
             {{/if}}
           </div>
@@ -527,7 +530,7 @@ You can get an updated status on your Scan by Refreshing. This can take a minute
             </h1>
             <div class="mt-1">
               {{#each detections.detectOpps as |detection|}}
-                <div class="mb-1">
+                <div class="card-container">
                   {{#if detection.type}}
                     <div>
                       <span class="p-key">Artifact Type:</span>
