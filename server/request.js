@@ -5,31 +5,72 @@ const {
   requests: { createRequestWithDefaults }
 } = require('polarity-integration-utils');
 const config = require('../config/config');
+const NodeCache = require('node-cache');
+const tokenCache = new NodeCache({
+  stdTTL: 2 * 59 * 60 // Tokens reset ever 2 hours
+});
+
+const requestForAuth = createRequestWithDefaults({
+  config,
+  roundedSuccessStatusCodes: [200],
+  requestOptionsToOmitFromLogsKeyPaths: ['headers.Authorization', 'body.api_key'],
+  postprocessRequestFailure: (error) => {
+    error.message = `Authentication Failed: Check Credentials and Try Again - (${error.status})`;
+
+    throw error;
+  }
+});
 
 const requestWithDefaults = createRequestWithDefaults({
   config,
   roundedSuccessStatusCodes: [200],
-  requestOptionsToOmitFromLogsKeyPaths: ['headers.Authentication'],
-  preprocessRequestOptions: async ({ route, options, ...requestOptions }) => ({
-    ...requestOptions,
-    url: `${options.url}/api/${route}`,
-    auth: {
-      user: options.username,
-      pass: options.password
-    },
-    json: true
-  }),
+  requestOptionsToOmitFromLogsKeyPaths: ['headers.Authorization', 'body.api_key'],
+  preprocessRequestOptions: async ({ route, options, ...requestOptions }) => {
+    const token = await getAuthToken(options);
+
+    return {
+      ...requestOptions,
+      url: `${options.url}/api/v2-0/${route}`,
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+      json: true
+    };
+  },
   postprocessRequestFailure: (error) => {
     const errorResponseBody = JSON.parse(error.description);
     error.message = `${error.message} - (${error.status})${
-      errorResponseBody.message || errorResponseBody.errorMessage
-        ? `| ${errorResponseBody.message || errorResponseBody.errorMessage}`
+      errorResponseBody.message || errorResponseBody.error
+        ? `| ${errorResponseBody.message || errorResponseBody.error}`
         : ''
     }`;
 
     throw error;
   }
 });
+
+const getAuthToken = async ({ url, apiKey }) => {
+  const cachedToken = tokenCache.get(apiKey);
+  if (cachedToken) return cachedToken;
+
+  const accessToken = get(
+    'body.result',
+    await requestForAuth({
+      method: 'POST',
+      url: `${url}/api/v2-0/get-access-token`,
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: { api_key: apiKey },
+      json: true
+    })
+  );
+
+  tokenCache.set(apiKey, accessToken);
+
+  return accessToken;
+};
 
 const createRequestsInParallel =
   (requestWithDefaults) =>
