@@ -123,24 +123,27 @@ You can get an updated status on your Scan by Refreshing. This can take a minute
     {{#if (eq activeTab "file")}}
       <div>
         {{#if file.analysis_url}}
-          <div>
+          <div class="mb-1">
             <a href="{{file.analysis_url}}/genetic-analysis">
               View Analysis in Intezer
               {{fa-icon icon="external-link" class="external-link" fixedWidth=true}}
             </a>
           </div>
         {{/if}}
+        <div>
+          <span class="verdict {{file.verdict}}">{{uppercase file.verdict}}</span>
+        </div>
+        <div>
+          <span class="p-value">{{file.family_name}}</span>
+        </div>
         <h1 class="p-title">
           {{fa-icon icon="file" class="icon" fixedWidth=true}}
           File Metadata
         </h1>
         <div>
           <div class="tags">
-            {{#each detections.fileFamilyTags as |family|}}
-              <div class="tag">{{family}}</div>
-            {{/each}}
-            {{#each file.tags as |tag|}}
-              <div class="tag">{{tag}}</div>
+            {{#each metadata.indicators as |tag|}}
+              <span class="tag">{{tag.name}}</span>
             {{/each}}
           </div>
           {{#if block.isLoadingDetails}}
@@ -174,6 +177,18 @@ You can get an updated status on your Scan by Refreshing. This can take a minute
               <div>
                 <span class="p-key">ssdeep:</span>
                 <span class="p-value">{{metadata.ssdeep}}</span>
+              </div>
+            {{/if}}
+            {{#if metadata.product}}
+              <div>
+                <span class="p-key">Product:</span>
+                <span class="p-value">{{metadata.product}}</span>
+              </div>
+            {{/if}}
+            {{#if metadata.original_filename}}
+              <div>
+                <span class="p-key">Original filename:</span>
+                <span class="p-value">{{metadata.original_filename}}</span>
               </div>
             {{/if}}
           {{/if}}

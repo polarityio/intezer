@@ -32,7 +32,6 @@ div.results {
 }
 
 .tags {
-  display: flex;
   margin-bottom: 5px;
   margin-top: 3px;
 
@@ -42,6 +41,7 @@ div.results {
     padding: 3px 10px 4px 10px;
     color: #b5bed6;
     background-color: #212b49;
+    line-height: 30px;
   }
 }
 
@@ -79,6 +79,28 @@ img {
       color: black !important;
       font-weight: 400 !important;
     }
+  }
+}
+
+.verdict {
+  text-transform: uppercase;
+  font-weight: 500;
+  font-size: 12px;
+
+  &.red, &.malicious {
+    color: rgb(178, 47, 69);
+  }
+
+  &.yellow {
+    color: rgb(237, 187, 126);
+  }
+
+  &.green, &.trusted {
+    color: rgb(58, 154, 129);
+  }
+
+  &.gray {
+    color: rgb(150, 150, 150)
   }
 }
 
