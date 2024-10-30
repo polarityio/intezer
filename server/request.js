@@ -13,11 +13,7 @@ const tokenCache = new NodeCache({
 const requestForAuth = createRequestWithDefaults({
   config,
   roundedSuccessStatusCodes: [200],
-  requestOptionsToOmitFromLogsKeyPaths: ['headers.api_key'],
-  postprocessRequestResponse: (response) => ({
-    ...response,
-    body: JSON.parse(get('body', response))
-  }),
+  requestOptionsToOmitFromLogsKeyPaths: ['headers.Authorization', 'body.api_key'],
   postprocessRequestFailure: (error) => {
     error.message = `Authentication Failed: Check Credentials and Try Again - (${error.status})`;
 
@@ -28,7 +24,7 @@ const requestForAuth = createRequestWithDefaults({
 const requestWithDefaults = createRequestWithDefaults({
   config,
   roundedSuccessStatusCodes: [200],
-  requestOptionsToOmitFromLogsKeyPaths: ['headers.Authorization'],
+  requestOptionsToOmitFromLogsKeyPaths: ['headers.Authorization', 'body.api_key'],
   preprocessRequestOptions: async ({ route, options, ...requestOptions }) => {
     const token = await getAuthToken(options);
 
@@ -66,7 +62,8 @@ const getAuthToken = async ({ url, apiKey }) => {
         Accept: 'application/json',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ api_key: apiKey })
+      body: { api_key: apiKey },
+      json: true
     })
   );
 
