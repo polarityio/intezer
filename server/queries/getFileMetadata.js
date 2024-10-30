@@ -1,28 +1,25 @@
-const { map } = require('lodash/fp');
+const { get } = require('lodash/fp');
 
 const {
   logging: { getLogger },
   errors: { parseErrorToReadableJson }
 } = require('polarity-integration-utils');
 
-const { requestsInParallel } = require('../request');
+const { requestWithDefaults } = require('../request');
 
-const getFilesMetadata = async (files, options) => {
+const getFileMetadata = async (file, options) => {
   const Logger = getLogger();
 
   try {
-    const filesMetadataRequests = map(
-      ({ resultId, result: file }) => ({
-        resultId,
+    const fileMetadata = get(
+      'body',
+      await requestWithDefaults({
         route: `analyses/${file.analysis_id}/sub-analyses/root/metadata`,
         options
-      }),
-      files
+      })
     );
 
-    const filesMetadata = await requestsInParallel(filesMetadataRequests, 'body')
-
-    return filesMetadata;
+    return fileMetadata;
   } catch (error) {
     const err = parseErrorToReadableJson(error);
     Logger.error(
@@ -36,4 +33,4 @@ const getFilesMetadata = async (files, options) => {
   }
 };
 
-module.exports = getFilesMetadata;
+module.exports = getFileMetadata;

@@ -1,389 +1,577 @@
-<div class="header-section">
-  <ul class="nav nav-tabs mt-2 mb-2">
-    <li class="nav-item">
-      <a
-        {{action "changeTab" "geneticAnalysis"}}
-        class="nav-link {{if (eq activeTab 'geneticAnalysis') 'active'}}"
-      >
-        Genetic Analysis
-      </a>
-    </li>
-    <li class="nav-item">
-      <a
-        {{action "changeTab" "ttps"}}
-        class="nav-link {{if (eq activeTab 'ttps') 'active'}}"
-      >
-        TTPs
-      </a>
-    </li>
-    <li class="nav-item">
-      <a
-        {{action "changeTab" "iocs"}}
-        class="nav-link {{if (eq activeTab 'iocs') 'active'}}"
-      >
-        IOCs
-      </a>
-    </li>
-    <li class="nav-item">
-      <a
-        {{action "changeTab" "behavior"}}
-        class="nav-link {{if (eq activeTab 'behavior') 'active'}}"
-      >
-        Behavior
-      </a>
-    </li>
-    <li class="nav-item">
-      <a
-        {{action "changeTab" "detectAndHunt"}}
-        class="nav-link {{if (eq activeTab 'detectAndHunt') 'active'}}"
-      >
-        Detect & Hunt
-      </a>
-    </li>
-  </ul>
-</div>
-<div class="results">
-  {{#if (eq activeTab "geneticAnalysis")}}
-    <div>
-      {{#if file.analysis_url}}
-        <div>
-          <a href="{{file.analysis_url}}/genetic-analysis">
-            View Analysis in Intezer
-            {{fa-icon icon="external-link" class="icon" fixedWidth=true}}
-          </a>
-        </div>
-      {{/if}}
-      <h1 class="p-title">
-        {{fa-icon icon="file" class="icon" fixedWidth=true}}
-        File Metadata
-      </h1>
-      <div class="ml-2">
-        <div class="tags">
-          {{#each file.families as |family|}}
-            <div class="tag">{{family}}</div>
-          {{/each}}
-          {{#each file.tags as |tag|}}
-            <div class="tag">{{tag}}</div>
-          {{/each}}
-        </div>
-        {{#if file.size}}
-          <div>
-            <span class="p-key">Size:</span>
-            <span class="p-value">{{file.size}}</span>
-          </div>
-        {{/if}}
-        {{#if metadata.sha256}}
-          <div>
-            <span class="p-key">SHA256:</span>
-            <span class="p-value">{{metadata.sha256}}</span>
-          </div>
-        {{/if}}
-        {{#if metadata.sha1}}
-          <div>
-            <span class="p-key">SHA1:</span>
-            <span class="p-value">{{metadata.sha1}}</span>
-          </div>
-        {{/if}}
-        {{#if metadata.md5}}
-          <div>
-            <span class="p-key">MD5:</span>
-            <span class="p-value">{{metadata.md5}}</span>
-          </div>
-        {{/if}}
-        {{#if metadata.ssdeep}}
-          <div>
-            <span class="p-key">ssdeep:</span>
-            <span class="p-value">{{metadata.ssdeep}}</span>
-          </div>
-        {{/if}}
+{{#if file.needsToBeScanned}}
+  <div class="mt-2">
+    <div class="alert alert-info">
+      <pre>This File Hash has yet to be scanned by Intezer.
+
+Scanning allows you to submit this hash to Intezer for Analysis.</pre>
+    </div>
+
+    {{#if scanFileHashErrorMessage}}
+      <div class="alert alert-danger mt-1">
+        {{scanFileHashErrorMessage}}
       </div>
-    </div>
-  {{/if}}
-  {{#if (eq activeTab "ttps")}}
-    <div>
-      {{#if file.analysis_url}}
-        <div>
-          <a href="{{file.analysis_url}}/dynamic-ttps">
-            View TTPs in Intezer
-            {{fa-icon icon="external-link" class="icon" fixedWidth=true}}
-          </a>
+    {{/if}}
+
+    <button
+      type="button"
+      class="p-btn btn btn-sm btn-secondary scan-refresh-btn mt-2"
+      {{action "scanFileHash"}}
+      disabled={{or scanningFileHash scanFileHashErrorMessage}}
+    >
+      {{#if scanningFileHash}}
+        Analyzing
+        {{fa-icon icon="spinner-third" fixedWidth=true spin=true}}
+      {{else}}
+        Scan Hash
+      {{/if}}
+    </button>
+  </div>
+{{else if file.fileScan}}
+  <div class="mt-2">
+    {{#if (eq file.fileScan.status "failed")}}
+      <div class="alert alert-danger">
+        <pre>File Not Found.
+
+This File Hash was found to be unavailable on Intezer during Intezer Hash Analysis.</pre>
+      </div>
+    {{else}}
+      <div class="alert alert-info">
+        <pre>Hash Analysis is {{titleize (humanize (dasherize file.fileScan.status))}}.
+
+You can get an updated status on your Scan by Refreshing. This can take a minute or so.</pre>
+      </div>
+
+      {{#if refreshFileHashScanErrorMessage}}
+        <div class="alert alert-danger mt-1">
+          {{refreshFileHashScanErrorMessage}}
         </div>
       {{/if}}
-      {{#if behavior.mitreAttackTechniqueDetections}}
-        <h1 class="p-title">
-          {{fa-icon icon="bug" class="icon" fixedWidth=true}}
-          MITRE ATT&CK Technique Detection
-        </h1>
-        {{#each-in behavior.mitreAttackTechniqueDetections as |enterprise techniques|}}
-          <div class="ml-2">
-            <span class="p-key">{{enterprise}}</span>
-            <span class="p-value">
-              {{#each techniques as |technique|}}
-                <div class="ml-2">
-                  <a href="{{technique.link}}">
-                    {{technique.name}}
-                    {{fa-icon icon="external-link" class="icon" fixedWidth=true}}
-                  </a>
-                </div>
-              {{/each}}
-            </span>
+
+      <button
+        type="button"
+        class="p-btn btn btn-sm btn-secondary scan-refresh-btn mt-2"
+        {{action "refreshFileHashScan"}}
+        disabled={{or refreshingFileHashScan refreshFileHashScanErrorMessage}}
+      >
+        {{#if refreshingFileHashScan}}
+          Refreshing
+          {{fa-icon icon="spinner-third" fixedWidth=true spin=true}}
+        {{else}}
+          Refresh
+        {{/if}}
+      </button>
+    {{/if}}
+  </div>
+{{else}}
+  <div class="header-section">
+    <ul class="nav nav-tabs mt-2 mb-2">
+      <li class="nav-item">
+        <a
+          {{action "changeTab" "file"}}
+          class="nav-link {{if (eq activeTab 'file') 'active'}}"
+        >
+          Genetic Analysis
+        </a>
+      </li>
+      <li class="nav-item">
+        <a
+          {{action "changeTab" "ttps"}}
+          class="nav-link {{if (eq activeTab 'ttps') 'active'}}"
+        >
+          TTPs
+          {{#if (get getTabResultsIsRunning "ttps")}}
+            {{fa-icon icon="spinner-third" size="md" fixedWidth=true spin=true}}
+          {{/if}}
+        </a>
+      </li>
+      <li class="nav-item">
+        <a
+          {{action "changeTab" "iocs"}}
+          class="nav-link {{if (eq activeTab 'iocs') 'active'}}"
+        >
+          IOCs
+          {{#if (get getTabResultsIsRunning "iocs")}}
+            {{fa-icon icon="spinner-third" size="md" fixedWidth=true spin=true}}
+          {{/if}}
+        </a>
+      </li>
+      <li class="nav-item">
+        <a
+          {{action "changeTab" "behavior"}}
+          class="nav-link {{if (eq activeTab 'behavior') 'active'}}"
+        >
+          Behavior
+          {{#if (get getTabResultsIsRunning "behavior")}}
+            {{fa-icon icon="spinner-third" size="md" fixedWidth=true spin=true}}
+          {{/if}}
+        </a>
+      </li>
+      <li class="nav-item">
+        <a
+          {{action "changeTab" "detections"}}
+          class="nav-link {{if (eq activeTab 'detections') 'active'}}"
+        >
+          Detect & Hunt
+          {{#if (get getTabResultsIsRunning "detections")}}
+            {{fa-icon icon="spinner-third" size="md" fixedWidth=true spin=true}}
+          {{/if}}
+        </a>
+      </li>
+    </ul>
+  </div>
+  <div class="results">
+    {{#if (eq activeTab "file")}}
+      <div>
+        {{#if file.analysis_url}}
+          <div>
+            <a href="{{file.analysis_url}}/genetic-analysis">
+              View Analysis in Intezer
+              {{fa-icon icon="external-link" class="icon" fixedWidth=true}}
+            </a>
           </div>
-        {{/each-in}}
-      {{/if}}
-      {{#if ttps.length}}
+        {{/if}}
         <h1 class="p-title">
-          {{fa-icon icon="info-circle" class="icon" fixedWidth=true}}
-          Details
+          {{fa-icon icon="file" class="icon" fixedWidth=true}}
+          File Metadata
         </h1>
-        {{#each ttps as |ttp|}}
-          <div class="mb-2 ml-2">
-            {{#if ttp.description}}
-              <div>
-                <span class="p-key">Technique:</span>
-                <span class="p-value">{{ttp.description}}</span>
-              </div>
-            {{/if}}
-            {{#if ttp.severity}}
-              <div>
-                <span class="p-key">Severity:</span>
-                <span class="p-value">
-                  {{#if (eq ttp.severity 3)}}
-                    High
-                  {{else if (eq ttp.severity 2)}}
-                    Medium
-                  {{else if (eq ttp.severity 1)}}
-                    Low
-                  {{else}}
-                    Unknown
-                  {{/if}}
-                </span>
-              </div>
-            {{/if}}
-            {{#if ttp.ttps.length}}
-              <div>
-                <span class="p-key">MITRE ATT&CK:</span>
-                <span class="p-value p-block">{{#each ttp.ttps as |mitreAttack|}}
-                    {{mitreAttack.ttp}}
-                  {{/each}}</span>
-              </div>
-            {{/if}}
-            {{#if ttp.formattedData.length}}
-              <div>
-                <span class="p-key">Details:</span>
-                <span class="p-value p-block">{{#each ttp.formattedData as |detail|}}
-                    {{detail}}
-                  {{/each}}</span>
-              </div>
-            {{/if}}
-          </div>
-        {{/each}}
-      {{/if}}
-    </div>
-  {{/if}}
-  {{#if (eq activeTab "iocs")}}
-    <div>
-      {{#if file.analysis_url}}
         <div>
-          <a href="{{file.analysis_url}}/iocs">
-            View IOCs in Intezer
-            {{fa-icon icon="external-link" class="icon" fixedWidth=true}}
-          </a>
+          <div class="tags">
+            {{#each detections.fileFamilyTags as |family|}}
+              <div class="tag">{{family}}</div>
+            {{/each}}
+            {{#each file.tags as |tag|}}
+              <div class="tag">{{tag}}</div>
+            {{/each}}
+          </div>
+          {{#if block.isLoadingDetails}}
+            {{fa-icon icon="spinner-third" size="md" fixedWidth=true spin=true}}
+          {{else}}
+            {{#if file.fileSize}}
+              <div>
+                <span class="p-key">Size:</span>
+                <span class="p-value">{{file.fileSize}}</span>
+              </div>
+            {{/if}}
+            {{#if metadata.sha256}}
+              <div>
+                <span class="p-key">SHA256:</span>
+                <span class="p-value">{{metadata.sha256}}</span>
+              </div>
+            {{/if}}
+            {{#if metadata.sha1}}
+              <div>
+                <span class="p-key">SHA1:</span>
+                <span class="p-value">{{metadata.sha1}}</span>
+              </div>
+            {{/if}}
+            {{#if metadata.md5}}
+              <div>
+                <span class="p-key">MD5:</span>
+                <span class="p-value">{{metadata.md5}}</span>
+              </div>
+            {{/if}}
+            {{#if metadata.ssdeep}}
+              <div>
+                <span class="p-key">ssdeep:</span>
+                <span class="p-value">{{metadata.ssdeep}}</span>
+              </div>
+            {{/if}}
+          {{/if}}
         </div>
-      {{/if}}
-      {{#if iocs.network.length}}
-        <h1 class="p-title">
-          {{fa-icon icon="wifi" class="icon" fixedWidth=true}}
-          Network IOCs
-        </h1>
-        {{#each iocs.network as |ioc|}}
-          <div class="mb-1 ml-2">
-            {{#if ioc.type}}
-              <div>
-                <span class="p-key">Type:</span>
-                <span class="p-value">{{capitalize ioc.type}}</span>
-              </div>
+      </div>
+    {{/if}}
+    {{#if (eq activeTab "ttps")}}
+      <div>
+        {{#if file.analysis_url}}
+          <div>
+            {{#if ttps.dynamicExecutionNotPossible}}
+              <a href="{{file.analysis_url}}//genetic-analysis">
+                View Analysis in Intezer
+                {{fa-icon icon="external-link" class="icon" fixedWidth=true}}
+              </a>
+            {{else}}
+              <a href="{{file.analysis_url}}/dynamic-ttps">
+                View TTPs in Intezer
+                {{fa-icon icon="external-link" class="icon" fixedWidth=true}}
+              </a>
             {{/if}}
-            {{#if ioc.ioc}}
-              <div>
-                <span class="p-key">IOC:</span>
-                <span class="p-value">{{ioc.ioc}}</span>
-              </div>
+          </div>
+        {{/if}}
+        {{#if (get getTabResultsIsRunning "ttps")}}
+          {{fa-icon icon="spinner-third" size="lg" fixedWidth=true spin=true}}
+        {{else if (or ttps.dynamicExecutionNotPossible (get getTabResultsErrorMessage "ttps"))}}
+          <div class="alert alert-danger mt-1">
+            {{#if ttps.dynamicExecutionNotPossible}}
+              Dynamic Execution is not possible for this Hash, which is required for TTPs data
+            {{else}}
+              {{get getTabResultsErrorMessage "ttps"}}
             {{/if}}
-            {{#if ioc.source}}
-              <div>
-                <span class="p-key">Source Type:</span>
+          </div>
+        {{else}}
+          {{#if ttps.mitreAttackTechniqueDetections}}
+            <h1 class="p-title">
+              {{fa-icon icon="bug" class="icon" fixedWidth=true}}
+              MITRE ATT&CK Categories
+            </h1>
+            {{#each-in ttps.mitreAttackTechniqueDetections as |enterprise techniques|}}
+              <div class="mt-1">
+                <span class="p-key">{{enterprise}}</span>
                 <span class="p-value">
-                  {{#each ioc.source as |source sourceIndex|}}
-                    {{titleize (humanize (dasherize source))}}{{#if
-                      (not (eq (sub ioc.source.length 1) sourceIndex))
-                    }}, {{/if}}
+                  {{#each techniques as |technique|}}
+                    <div class="ml-2">
+                      <a href="{{technique.link}}">
+                        {{technique.name}}
+                        {{fa-icon icon="external-link" class="icon" fixedWidth=true}}
+                      </a>
+                    </div>
                   {{/each}}
                 </span>
               </div>
-            {{/if}}
-            {{#if ioc.classification}}
-              <div>
-                <span class="p-key">Classification:</span>
-                <span class="p-value">{{titleize
-                    (humanize (dasherize ioc.classification))
-                  }}</span>
-              </div>
-            {{/if}}
-          </div>
-        {{/each}}
-      {{/if}}
-      {{#if iocs.files.length}}
-        <h1 class="p-title">
-          {{fa-icon icon="file" class="icon" fixedWidth=true}}
-          File IOCs
-        </h1>
-        {{#each iocs.files as |ioc|}}
-          <div class="mb-1 ml-2">
-            {{#if ioc.sha256}}
-              <div>
-                <span class="p-key">SHA256:</span>
-                <span class="p-value">{{capitalize ioc.sha256}}</span>
-              </div>
-            {{/if}}
-            {{#if ioc.path}}
-              <div>
-                <span class="p-key">Path:</span>
-                <span class="p-value">{{ioc.path}}</span>
-              </div>
-            {{/if}}
-            {{#if ioc.type}}
-              <div>
-                <span class="p-key">Type:</span>
-                <span class="p-value">{{titleize (humanize (dasherize ioc.type))}}</span>
-              </div>
-            {{/if}}
-            {{#if ioc.verdict}}
-              <div>
-                <span class="p-key">Classification:</span>
-                <span class="p-value">{{capitalize ioc.verdict}}{{#if
-                    ioc.family
-                  }}({{ioc.family}}){{/if}}</span>
-              </div>
-            {{/if}}
-          </div>
-        {{/each}}
-      {{/if}}
-    </div>
-  {{/if}}
-  {{#if (eq activeTab "behavior")}}
-    <div>
-      {{#if file.analysis_url}}
-        <div>
-          <a href="{{file.analysis_url}}/behavior">
-            View Behavior in Intezer
-            {{fa-icon icon="external-link" class="icon" fixedWidth=true}}
-          </a>
-        </div>
-      {{/if}}
-      {{#if behavior.screenshots.length}}
-        <div class="mt-1">
-          {{#if (get expandableTitleStates "behaviorScreenshots")}}
-            <a
-              href="#"
-              class="expandable-title"
-              {{on "click" (action "toggleExpandableTitle" "behaviorScreenshots")}}
-            >
-              <span class="text">Screenshots</span>
-              {{fa-icon "angle-up"}}
-            </a>
-            {{#each behavior.screenshots as |screenshotLink|}}
-              <div class="mb-2">
-                <img src="{{screenshotLink}}" />
-              </div>
-            {{/each}}
-          {{else}}
-            <a
-              href="#"
-              class="expandable-title"
-              {{on "click" (action "toggleExpandableTitle" "behaviorScreenshots")}}
-            >
-              <span class="text">Screenshots</span>
-              {{fa-icon "angle-down"}}
-            </a>
+            {{/each-in}}
           {{/if}}
-        </div>
-      {{/if}}
-      {{#if behavior.processTreeWithTabs.length}}
-        <h1 class="p-title">
-          {{fa-icon icon="code-branch" class="icon" fixedWidth=true}}
-          Process Tree
-        </h1>
-        <div class="processes mt-1">
-          {{#each behavior.processTreeWithTabs as |process|}}
-            <div class="process ml-{{process.numberOfTabs}}">
-              <div class="process-name">{{process.name}}</div>
-              <div class="command-id">{{process.process_id}} | {{process.command}}</div>
+          {{#if ttps.techniques.length}}
+            <h1 class="p-title">
+              {{fa-icon icon="info-circle" class="icon" fixedWidth=true}}
+              Technique Detection
+            </h1>
+            <div class="mt-1">
+              {{#each ttps.techniques as |ttp ttpIndex|}}
+                <div class="mb-2">
+                  {{#if ttp.description}}
+                    <div>
+                      <span class="p-key">Technique:</span>
+                      <span class="p-value">{{ttp.description}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if ttp.severity}}
+                    <div>
+                      <span class="p-key">Severity:</span>
+                      <span class="p-value">
+                        {{#if (eq ttp.severity 3)}}
+                          High
+                        {{else if (eq ttp.severity 2)}}
+                          Medium
+                        {{else if (eq ttp.severity 1)}}
+                          Low
+                        {{else}}
+                          Unknown
+                        {{/if}}
+                      </span>
+                    </div>
+                  {{/if}}
+                  {{#if ttp.ttps.length}}
+                    <div>
+                      <span class="p-key">MITRE ATT&CK:</span>
+                      <span class="p-value p-block">{{#each ttp.ttps as |mitreAttack|}}
+                          <div>
+                            {{mitreAttack.ttp}}
+                          </div>
+                        {{/each}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if ttp.formattedData.length}}
+                    <div>
+                      {{#if (get expandableTitleStates (concat "ttpDetails" ttpIndex))}}
+                        <a
+                          href="#"
+                          class="expandable-title"
+                          {{on
+                            "click"
+                            (action
+                              "toggleExpandableTitle" (concat "ttpDetails" ttpIndex)
+                            )
+                          }}
+                        >
+                          <span class="text">Details</span>
+                          {{fa-icon "angle-up"}}
+                        </a>
+                        {{#each ttp.formattedData as |detail|}}
+                          <div>{{detail}}</div>
+                        {{/each}}
+                      {{else}}
+                        <a
+                          href="#"
+                          class="expandable-title"
+                          {{on
+                            "click"
+                            (action
+                              "toggleExpandableTitle" (concat "ttpDetails" ttpIndex)
+                            )
+                          }}
+                        >
+                          <span class="text">Details</span>
+                          {{fa-icon "angle-down"}}
+                        </a>
+                      {{/if}}
+                    </div>
+                  {{/if}}
+                </div>
+              {{/each}}
             </div>
-          {{/each}}
-        </div>
-      {{/if}}
-    </div>
-  {{/if}}
-  {{#if (eq activeTab "detectAndHunt")}}
-    <div>
-      {{#if file.analysis_url}}
-        <div>
-          <a href="{{file.analysis_url}}/detect-hunt">
-            View Detect & Hunt in Intezer
-            {{fa-icon icon="external-link" class="icon" fixedWidth=true}}
-          </a>
-        </div>
-      {{/if}}
-      {{#if detections.length}}
-        <h1 class="p-title">
-          {{fa-icon icon="signature" class="icon" fixedWidth=true}}
-          Activity-based Detection Opps <span>({{detections.length}})</span>
-        </h1>
-        <div class="mt-1">
-          {{#each detections as |detection|}}
-            <div class="mb-1 ml-2">
-              {{#if detection.type}}
-                <div>
-                  <span class="p-key">Artifact Type:</span>
-                  <span class="p-value">{{detection.type}}</span>
+          {{/if}}
+        {{/if}}
+      </div>
+    {{/if}}
+    {{#if (eq activeTab "iocs")}}
+      <div>
+        {{#if file.analysis_url}}
+          <div>
+            <a href="{{file.analysis_url}}/iocs">
+              View IOCs in Intezer
+              {{fa-icon icon="external-link" class="icon" fixedWidth=true}}
+            </a>
+          </div>
+        {{/if}}
+        {{#if (get getTabResultsIsRunning "iocs")}}
+          {{fa-icon icon="spinner-third" size="lg" fixedWidth=true spin=true}}
+        {{else if (get getTabResultsErrorMessage "iocs")}}
+          <div class="alert alert-danger mt-1">
+            {{get getTabResultsErrorMessage "iocs"}}
+          </div>
+        {{else}}
+          {{#if iocs.network.length}}
+            <h1 class="p-title">
+              {{fa-icon icon="wifi" class="icon" fixedWidth=true}}
+              Network IOCs
+            </h1>
+            <div class="mt-1">
+              {{#each iocs.network as |ioc|}}
+                <div class="mb-1">
+                  {{#if ioc.type}}
+                    <div>
+                      <span class="p-key">Type:</span>
+                      <span class="p-value">{{capitalize ioc.type}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if ioc.ioc}}
+                    <div>
+                      <span class="p-key">IOC:</span>
+                      <span class="p-value">{{ioc.ioc}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if ioc.source}}
+                    <div>
+                      <span class="p-key">Source Type:</span>
+                      <span class="p-value">
+                        {{#each ioc.source as |source sourceIndex|}}
+                          {{titleize (humanize (dasherize source))}}{{#if
+                            (not (eq (sub ioc.source.length 1) sourceIndex))
+                          }}, {{/if}}
+                        {{/each}}
+                      </span>
+                    </div>
+                  {{/if}}
+                  {{#if ioc.classification}}
+                    <div>
+                      <span class="p-key">Classification:</span>
+                      <span class="p-value">{{titleize
+                          (humanize (dasherize ioc.classification))
+                        }}</span>
+                    </div>
+                  {{/if}}
                 </div>
-              {{/if}}
-              {{#if detection.value}}
-                <div>
-                  <span class="p-key">Artifact:</span>
-                  <span class="p-value">{{#if detection.valueIsArray}}{{join
-                        " -> "
-                        detection.value
-                      }}{{else}}{{detection.value}}{{/if}}</span>
+              {{/each}}
+            </div>
+          {{/if}}
+          {{#if iocs.files.length}}
+            <h1 class="p-title">
+              {{fa-icon icon="file" class="icon" fixedWidth=true}}
+              File IOCs
+            </h1>
+            <div class="mt-1">
+              {{#each iocs.files as |ioc|}}
+                <div class="mb-1">
+                  {{#if ioc.sha256}}
+                    <div>
+                      <span class="p-key">SHA256:</span>
+                      <span class="p-value">{{capitalize ioc.sha256}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if ioc.path}}
+                    <div>
+                      <span class="p-key">Path:</span>
+                      <span class="p-value">{{ioc.path}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if ioc.type}}
+                    <div>
+                      <span class="p-key">Type:</span>
+                      <span class="p-value">{{titleize
+                          (humanize (dasherize ioc.type))
+                        }}</span>
+                    </div>
+                  {{/if}}
+                  {{#if ioc.verdict}}
+                    <div>
+                      <span class="p-key">Classification:</span>
+                      <span class="p-value">{{capitalize ioc.verdict}}{{#if
+                          ioc.family
+                        }}({{ioc.family}}){{/if}}</span>
+                    </div>
+                  {{/if}}
                 </div>
-              {{/if}}
-              {{#if detection.source}}
-                <div>
-                  <span class="p-key">Source:</span>
-                  <span class="p-value">{{titleize
-                      (humanize (dasherize detection.source))
-                    }}</span>
-                </div>
-              {{/if}}
-              {{#if detection.families.length}}
-                <div>
-                  <span class="p-key">Seen In:</span>
-                  <span class="p-value">{{#each
-                      detection.families
-                      as |family familyIndex|
-                    }}
-                      {{family.family_name}}{{#if
-                        (not (eq (sub detection.families.length 1) familyIndex))
-                      }}, {{/if}}
-                    {{/each}}</span>
-                </div>
+              {{/each}}
+            </div>
+          {{/if}}
+        {{/if}}
+      </div>
+    {{/if}}
+    {{#if (eq activeTab "behavior")}}
+      <div>
+        {{#if file.analysis_url}}
+          <div>
+            {{#if behavior.dynamicExecutionNotPossible}}
+              <a href="{{file.analysis_url}}//genetic-analysis">
+                View Analysis in Intezer
+                {{fa-icon icon="external-link" class="icon" fixedWidth=true}}
+              </a>
+            {{else}}
+              <a href="{{file.analysis_url}}/behavior">
+                View Behavior in Intezer
+                {{fa-icon icon="external-link" class="icon" fixedWidth=true}}
+              </a>
+            {{/if}}
+          </div>
+        {{/if}}
+        {{#if (get getTabResultsIsRunning "behavior")}}
+          {{fa-icon icon="spinner-third" size="lg" fixedWidth=true spin=true}}
+        {{else if (or behavior.dynamicExecutionNotPossible (get getTabResultsErrorMessage "behavior"))}}
+          <div class="alert alert-danger mt-1">
+            {{#if ttps.dynamicExecutionNotPossible}}
+              Dynamic Execution is not possible for this Hash, which is required for Behavior data
+            {{else}}
+              {{get getTabResultsErrorMessage "behavior"}}
+            {{/if}}
+          </div>
+        {{else}}
+          {{#if behavior.screenshots.length}}
+            <div class="mt-2">
+              {{#if (get expandableTitleStates "behaviorScreenshots")}}
+                <a
+                  href="#"
+                  class="expandable-title mb-1"
+                  {{on "click" (action "toggleExpandableTitle" "behaviorScreenshots")}}
+                >
+                  <span class="text">Screenshots</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                {{#each behavior.screenshots as |screenshotLink|}}
+                  <div class="mb-2">
+                    <img src="{{screenshotLink}}" />
+                  </div>
+                {{/each}}
+              {{else}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on "click" (action "toggleExpandableTitle" "behaviorScreenshots")}}
+                >
+                  <span class="text">Screenshots</span>
+                  {{fa-icon "angle-down"}}
+                </a>
               {{/if}}
             </div>
-          {{/each}}
-        </div>
-      {{else}}
-        No Detections Found
-      {{/if}}
-    </div>
-  {{/if}}
-</div>
+          {{/if}}
+          {{#if behavior.processTreeWithTabs.length}}
+            <h1 class="p-title">
+              {{fa-icon icon="code-branch" class="icon" fixedWidth=true}}
+              Process Tree
+            </h1>
+            <div class="processes mt-1">
+              {{#each behavior.processTreeWithTabs as |process|}}
+                <div class="process ml-{{process.numberOfTabs}}">
+                  <div class="process-name">{{process.name}}</div>
+                  <div class="command-id">{{process.process_id}}
+                    |
+                    {{process.command}}</div>
+                </div>
+              {{/each}}
+            </div>
+          {{/if}}
+        {{/if}}
+      </div>
+    {{/if}}
+    {{#if (eq activeTab "detections")}}
+      <div>
+        {{#if file.analysis_url}}
+          <div>
+            {{#if detections.dynamicExecutionNotPossible}}
+              <a href="{{file.analysis_url}}//genetic-analysis">
+                View Analysis in Intezer
+                {{fa-icon icon="external-link" class="icon" fixedWidth=true}}
+              </a>
+            {{else}}
+              <a href="{{file.analysis_url}}/detect-hunt">
+                View Detect & Hunt in Intezer
+                {{fa-icon icon="external-link" class="icon" fixedWidth=true}}
+              </a>
+            {{/if}}
+          </div>
+        {{/if}}
+        {{#if (get getTabResultsIsRunning "detections")}}
+          {{fa-icon icon="spinner-third" size="lg" fixedWidth=true spin=true}}
+        {{else if (or detections.dynamicExecutionNotPossible (get getTabResultsErrorMessage "detections"))}}
+          <div class="alert alert-danger mt-1">
+            {{#if ttps.dynamicExecutionNotPossible}}
+              Dynamic Execution is not possible for this Hash, which is required for Detect & Hunt data
+            {{else}}
+              {{get getTabResultsErrorMessage "detections"}}
+            {{/if}}
+          </div>
+        {{else}}
+          {{#if detections.detectOpps.length}}
+            <h1 class="p-title">
+              {{fa-icon icon="signature" class="icon" fixedWidth=true}}
+              Activity-based Detection Opps
+              <span>({{detections.detectOpps.length}})</span>
+            </h1>
+            <div class="mt-1">
+              {{#each detections.detectOpps as |detection|}}
+                <div class="mb-1">
+                  {{#if detection.type}}
+                    <div>
+                      <span class="p-key">Artifact Type:</span>
+                      <span class="p-value">{{detection.type}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if detection.value}}
+                    <div>
+                      <span class="p-key">Artifact:</span>
+                      <span class="p-value">{{#if detection.valueIsArray}}{{join
+                            " -> "
+                            detection.value
+                          }}{{else}}{{detection.value}}{{/if}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if detection.source}}
+                    <div>
+                      <span class="p-key">Source:</span>
+                      <span class="p-value">{{titleize
+                          (humanize (dasherize detection.source))
+                        }}</span>
+                    </div>
+                  {{/if}}
+                  {{#if detection.families.length}}
+                    <div>
+                      <span class="p-key">Seen In:</span>
+                      <span class="p-value">{{#each
+                          detection.families
+                          as |family familyIndex|
+                        }}
+                          {{family.family_name}}{{#if
+                            (not (eq (sub detection.families.length 1) familyIndex))
+                          }}, {{/if}}
+                        {{/each}}</span>
+                    </div>
+                  {{/if}}
+                </div>
+              {{/each}}
+            </div>
+          {{else}}
+            No Detections Found
+          {{/if}}
+        {{/if}}
+      </div>
+    {{/if}}
+  </div>
+{{/if}}

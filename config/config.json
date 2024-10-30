@@ -36,6 +36,24 @@
       "type": "password",
       "userCanEdit": false,
       "adminOnly": true
+    },
+    {
+      "key": "allowHashScan",
+      "name": "Allow Hash Scan",
+      "description": "Enables the ability to scan searched hashes if they have yet to be Analyzed by Intezer",
+      "default": false,
+      "type": "boolean",
+      "userCanEdit": false,
+      "adminOnly": true
+    },
+    {
+      "key": "autoHashScan",
+      "name": "Enable Auto Hash Scan",
+      "description": "Enable the ability to automatically on Search scan hashes if they have yet to be Analyzed by Intezer",
+      "default": false,
+      "type": "boolean",
+      "userCanEdit": false,
+      "adminOnly": true
     }
   ]
 }

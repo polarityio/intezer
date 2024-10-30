@@ -12,6 +12,12 @@ The base URL of the Intezer API including the schema (i.e., https://)
 ### API Key
 Your API Key
 
+### Allow Hash Scan
+Enables the ability to scan searched hashes if they have yet to be Analyzed by Intezer.
+
+### Enable Auto Hash Scan
+Enable the ability to automatically on Search scan hashes if they have yet to be Analyzed by Intezer
+
 ## Installation Instructions
 
 Installation instructions for integrations are provided on the [PolarityIO GitHub Page](https://polarityio.github.io/).

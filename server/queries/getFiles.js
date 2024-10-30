@@ -1,40 +1,66 @@
-const { map } = require('lodash/fp');
+const { map, get } = require('lodash/fp');
 
 const {
   logging: { getLogger },
   errors: { parseErrorToReadableJson }
 } = require('polarity-integration-utils');
 
-const { requestsInParallel } = require('../request');
+const { requestWithDefaults } = require('../request');
+const { scanFileHash, entityHasPreviouslyFailedHashScanning } = require('../onMessage');
 
+const getFiles = async (entities, options) =>
+  await Promise.all(
+    map(async (entity) => {
+      const Logger = getLogger();
 
-const getFiles = async (entities, options) => {
-  const Logger = getLogger();
+      try {
+        const file = get(
+          'body.result',
+          await requestWithDefaults({
+            route: `files/${entity.value}`,
+            options
+          })
+        );
 
-  try {
-    const fileRequests = map(
-      (entity) => ({
-        resultId: entity.value,
-        route: `files/${entity.value}`,
-        options
-      }),
-      entities
-    );
+        return { resultId: entity.value, result: file };
+      } catch (error) {
+        const err = parseErrorToReadableJson(error);
 
-    const files = await requestsInParallel(fileRequests, 'body.result')
+        let requestErrorMessage;
+        try {
+          requestErrorMessage = get('error', JSON.parse(err.description));
+        } catch (e) {}
 
-    return files;
-  } catch (error) {
-    const err = parseErrorToReadableJson(error);
-    Logger.error(
-      {
-        formattedError: err,
-        error
-      },
-      'Getting Files Failed'
-    );
-    throw error;
+        const fileHashNotAnalyzedYetOrExpired =
+          (err.status === 404 && requestErrorMessage === 'Analysis was not found') ||
+          (err.status === 410 && requestErrorMessage === 'Analysis expired');
+
+        if (fileHashNotAnalyzedYetOrExpired) {
+          return await handleFileHashNotAnalyzedYet(entity, options);
+        }
+
+        Logger.error(
+          {
+            entity,
+            formattedError: err,
+            error
+          },
+          'Getting File Failed'
+        );
+
+        throw error;
+      }
+    }, entities)
+  );
+
+const handleFileHashNotAnalyzedYet = async (entity, options) => {
+  if (options.autoHashScan) {
+    const fileWithFileScan = await scanFileHash({ entity }, options);
+    return { resultId: entity.value, result: fileWithFileScan };
+  } else if (options.allowHashScan && !entityHasPreviouslyFailedHashScanning(entity)) {
+    return { resultId: entity.value, result: { needsToBeScanned: true } };
+  } else {
+    return;
   }
 };
-
 module.exports = getFiles;
