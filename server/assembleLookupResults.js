@@ -21,7 +21,7 @@ const assembleLookupResults = (entities, files, options) =>
 const createSummaryTags = (file) =>
   [].concat(
     get('analysis_id', file)
-      ? 'File Found'
+      ? get('verdict', file)
       : get('needsToBeScanned', file)
       ? 'Scan File'
       : get('fileScan', file)
